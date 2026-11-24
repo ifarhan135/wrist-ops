@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wrist Ops</string>
+    <string name="assistant_title">Ask Claude</string>
+</resources>
