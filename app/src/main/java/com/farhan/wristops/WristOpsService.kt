@@ -20,6 +20,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Log
+import com.farhan.wristops.macrodroid.MacroDroidClient
 import com.farhan.wristops.tv.TvController
 import kotlin.math.abs
 import kotlin.math.sqrt
@@ -153,6 +154,7 @@ class WristOpsService : Service(), SensorEventListener {
 
     private fun launchAssistant() {
         buzz(longArrayOf(0, 40))
+        MacroDroidClient.notify(this, "shake")
         val intent = Intent(this, AssistantActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
@@ -171,7 +173,8 @@ class WristOpsService : Service(), SensorEventListener {
         lastSleepCheckMs = now
 
         if (now < cooldownUntilMs) return
-        if (Prefs.tvIp(this).isEmpty()) return
+        // Nothing to do if neither the TV nor MacroDroid is configured.
+        if (Prefs.tvIp(this).isEmpty() && Prefs.macroDroidUrl(this).isEmpty()) return
 
         val hr = latestHr
         if (hr !in 30..Prefs.hrThreshold(this)) return
@@ -207,6 +210,16 @@ class WristOpsService : Service(), SensorEventListener {
     }
 
     private fun turnTvOff() {
+        // Tell the phone first: MacroDroid may have its own things to do, and it
+        // should not wait on the TV handshake.
+        MacroDroidClient.notify(this, "sleep")
+
+        if (Prefs.tvIp(this).isEmpty()) {
+            status = "Asleep, pinged phone"
+            updateNotification(status)
+            return
+        }
+
         status = "Turning TV off"
         Thread {
             val outcome = TvController.powerOff(applicationContext)

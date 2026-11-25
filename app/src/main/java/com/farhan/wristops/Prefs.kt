@@ -18,8 +18,11 @@ object Prefs {
     const val KEY_ENABLED = "enabled"
     const val KEY_ADB_PRIVATE = "adb_private"
     const val KEY_ADB_PUBLIC = "adb_public"
+    const val KEY_MACRODROID_URL = "macrodroid_url"
+    const val KEY_REPO = "repo"
 
     const val DEFAULT_MODEL = "claude-sonnet-5-5"
+    const val DEFAULT_REPO = "ifarhan135/wrist-ops"
 
     fun get(context: Context): SharedPreferences =
         context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE)
@@ -44,6 +47,16 @@ object Prefs {
 
     /** 223 = KEYCODE_SLEEP (off, stays off). 26 = KEYCODE_POWER (toggle). */
     fun keyevent(context: Context): Int = get(context).getInt(KEY_KEYEVENT, 223)
+
+    /** MacroDroid's HTTP Server Request URL, e.g. http://192.168.1.20:8080/wristops */
+    fun macroDroidUrl(context: Context): String =
+        get(context).getString(KEY_MACRODROID_URL, "") ?: ""
+
+    /** owner/name of the GitHub repo the updater pulls releases from. */
+    fun repo(context: Context): String {
+        val r = get(context).getString(KEY_REPO, DEFAULT_REPO) ?: DEFAULT_REPO
+        return if (r.isBlank()) DEFAULT_REPO else r
+    }
 
     fun enabled(context: Context): Boolean = get(context).getBoolean(KEY_ENABLED, false)
 

@@ -41,6 +41,12 @@ class ConfigReceiver : BroadcastReceiver() {
         intent.getStringExtra("keyevent")?.toIntOrNull()?.let {
             editor.putInt(Prefs.KEY_KEYEVENT, it); changed = true
         }
+        intent.getStringExtra("macrodroid_url")?.let {
+            editor.putString(Prefs.KEY_MACRODROID_URL, it.trim()); changed = true
+        }
+        intent.getStringExtra("repo")?.let {
+            editor.putString(Prefs.KEY_REPO, it.trim()); changed = true
+        }
 
         if (changed) editor.apply()
     }

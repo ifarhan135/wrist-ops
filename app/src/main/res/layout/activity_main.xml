@@ -44,6 +44,23 @@
             android:layout_marginTop="6dp"
             android:text="Ask Claude" />
 
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Check for update" />
+
+        <TextView
+            android:id="@+id/versionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textColor="#666666"
+            android:textSize="10sp"
+            android:text="" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -135,6 +152,22 @@
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
             android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="#888888"
+            android:textSize="11sp"
+            android:text="MacroDroid URL (optional)" />
+
+        <EditText
+            android:id="@+id/macroDroidInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:textSize="13sp"
+            android:hint="http://192.168.1.20:8080/wristops" />
 
         <Button
             android:id="@+id/saveButton"

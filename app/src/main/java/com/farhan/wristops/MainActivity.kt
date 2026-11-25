@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.farhan.wristops.tv.TvController
+import com.farhan.wristops.update.Updater
 
 /** Settings and manual controls. Everything fits in one scrolling column. */
 class MainActivity : Activity() {
@@ -24,6 +25,8 @@ class MainActivity : Activity() {
     private lateinit var hrInput: EditText
     private lateinit var stillInput: EditText
     private lateinit var shakeInput: EditText
+    private lateinit var macroDroidInput: EditText
+    private lateinit var versionText: TextView
 
     private val handler = Handler(Looper.getMainLooper())
     private val refresh = object : Runnable {
@@ -46,6 +49,10 @@ class MainActivity : Activity() {
         hrInput = findViewById(R.id.hrInput)
         stillInput = findViewById(R.id.stillInput)
         shakeInput = findViewById(R.id.shakeInput)
+        macroDroidInput = findViewById(R.id.macroDroidInput)
+        versionText = findViewById(R.id.versionText)
+
+        versionText.text = "v${Updater.installedVersionCode(this)}"
 
         loadValues()
         requestNeededPermissions()
@@ -82,6 +89,32 @@ class MainActivity : Activity() {
             saveValues()
             startActivity(android.content.Intent(this, AssistantActivity::class.java))
         }
+
+        findViewById<Button>(R.id.updateButton).setOnClickListener { checkForUpdate() }
+    }
+
+    /** Looks for a newer release and, if there is one, installs it. */
+    private fun checkForUpdate() {
+        liveText.text = "Checking GitHub..."
+        Thread {
+            when (val result = Updater.check(applicationContext)) {
+                is Updater.Result.UpToDate ->
+                    handler.post { liveText.text = "Already up to date" }
+
+                is Updater.Result.Failed ->
+                    handler.post { liveText.text = result.message }
+
+                is Updater.Result.Found -> {
+                    handler.post {
+                        liveText.text = "Downloading ${result.update.tag}..."
+                    }
+                    val error = Updater.downloadAndInstall(applicationContext, result.update)
+                    handler.post {
+                        liveText.text = error ?: "Confirm the install on screen"
+                    }
+                }
+            }
+        }.start()
     }
 
     override fun onResume() {
@@ -102,6 +135,7 @@ class MainActivity : Activity() {
         hrInput.setText(Prefs.hrThreshold(this).toString())
         stillInput.setText(Prefs.stillMinutes(this).toString())
         shakeInput.setText(Prefs.shakeForce(this).toString())
+        macroDroidInput.setText(Prefs.macroDroidUrl(this))
     }
 
     private fun saveValues() {
@@ -116,6 +150,7 @@ class MainActivity : Activity() {
             .putInt(Prefs.KEY_HR_THRESHOLD, hr.coerceIn(35, 120))
             .putInt(Prefs.KEY_STILL_MINUTES, still.coerceIn(1, 120))
             .putFloat(Prefs.KEY_SHAKE_FORCE, shake.coerceIn(11f, 40f))
+            .putString(Prefs.KEY_MACRODROID_URL, macroDroidInput.text.toString().trim())
             .apply()
 
         statusText.text = "Saved"
