@@ -22,8 +22,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # The runner image already ships the Android SDK. This step is only here to
+      # accept licenses; its default package list still contains the obsolete
+      # "tools" package, which no longer exists and fails the install.
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+
+      - name: Show SDK location
+        run: echo "ANDROID_HOME=$ANDROID_HOME"; ls "$ANDROID_HOME/platforms" || true
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
